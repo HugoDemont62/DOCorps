@@ -31,7 +31,7 @@ services:
     restart: unless-stopped
 
   # -----------------------------------
-  # AUTH API - PHP Authentication Service
+  # AUTH API - PHP Authentication Service (SQLite)
   # -----------------------------------
   auth-api:
     container_name: devopscorp-auth-api
@@ -41,20 +41,20 @@ services:
     ports:
       - "8080:80"
     environment:
-      - DB_HOST=mysql
-      - DB_PORT=3306
-      - DB_NAME=${MYSQL_DATABASE}
-      - DB_USER=${MYSQL_USER}
-      - DB_PASSWORD=${MYSQL_PASSWORD}
-      - JWT_SECRET=${JWT_SECRET}
-      - JWT_EXPIRATION=${JWT_EXPIRATION}
+      - APP_ENV=development
+      - APP_DEBUG=true
+      - DB_PATH=database/auth.db
+      - JWT_SECRET=${JWT_SECRET:-your-super-secret-jwt-key-change-this}
+      - JWT_ALGORITHM=HS256
+      - JWT_EXPIRATION=${JWT_EXPIRATION:-3600}
+      - BCRYPT_COST=12
+      - CORS_ORIGIN=http://localhost:3000
     volumes:
-      - ./auth-api:/var/www/html
+      # On monte uniquement la base de données pour la persistance
+      # Ne PAS monter tout /var/www/html car ça écrase le vendor installé dans le build
+      - ./auth-api/database:/var/www/html/database
     networks:
       - devopscorp-network
-    depends_on:
-      mysql:
-        condition: service_healthy
     restart: unless-stopped
 
   # -----------------------------------

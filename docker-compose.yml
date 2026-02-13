@@ -18,8 +18,8 @@ services:
     ports:
       - "3000:3000"
     environment:
-      - REACT_APP_API_URL=http://localhost:8080/api
-      - REACT_APP_PRODUCT_API_URL=http://localhost:5000/api
+      - VITE_AUTH_API_URL=http://localhost:8080/api
+      - VITE_PRODUCT_API_URL=http://localhost:5000
     volumes:
       - ./frontend:/app
       - /app/node_modules
@@ -74,9 +74,9 @@ services:
       - DB_USER=${POSTGRES_USER}
       - DB_PASSWORD=${POSTGRES_PASSWORD}
       - JWT_SECRET=${JWT_SECRET}
+      - CORS_ORIGIN=http://localhost:3000
     volumes:
       - ./product-api:/app
-      - /app/node_modules
     networks:
       - devopscorp-network
     depends_on:

@@ -52,6 +52,18 @@ def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(securit
         # Si la signature ne correspond pas à JWT_SECRET -> exception
         # Si le token est expiré -> exception
         payload = jwt.decode(token, JWT_SECRET, algorithms=[JWT_ALGORITHM])
+
+        # L'API Auth PHP génère un JWT avec la structure : { iat, exp, data: { id, username, email, role } }
+        # On extrait les infos depuis le champ "data" pour les rendre accessibles directement
+        if "data" in payload:
+            data = payload["data"]
+            return {
+                "user_id": data.get("id"),
+                "role": data.get("role"),
+                "username": data.get("username"),
+                "email": data.get("email"),
+            }
+
         return payload
 
     except jwt.ExpiredSignatureError:

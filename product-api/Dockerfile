@@ -18,10 +18,10 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Maintenant, copie tout le reste du code
 COPY . .
 
-# Expose le port 8000 (documentation, ne fait rien techniquement)
-EXPOSE 8000
+# Expose le port 5000 (documentation, ne fait rien techniquement)
+EXPOSE 5000
 
 # Commande lancée quand le conteneur démarre
 # --host 0.0.0.0 : écoute sur toutes les interfaces (nécessaire dans Docker)
 # Sans ça, uvicorn n'écoute que sur localhost et le port n'est pas accessible
-CMD ["uvicorn", "app:app", "--host", "0.0.0.0", "--port", "8000"]
+CMD ["uvicorn", "app:app", "--host", "0.0.0.0", "--port", "5000"]

@@ -1,0 +1,189 @@
+version: '3.8'
+
+# ===================================
+# DEVOPSCORP - Docker Compose
+# ===================================
+# Architecture microservices complète
+# Pour démarrer : docker-compose up -d
+
+services:
+  # -----------------------------------
+  # FRONTEND - React Application
+  # -----------------------------------
+  frontend:
+    container_name: devopscorp-frontend
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    environment:
+      - REACT_APP_API_URL=http://localhost:8080/api
+      - REACT_APP_PRODUCT_API_URL=http://localhost:5000/api
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    networks:
+      - devopscorp-network
+    depends_on:
+      - auth-api
+      - product-api
+    restart: unless-stopped
+
+  # -----------------------------------
+  # AUTH API - PHP Authentication Service
+  # -----------------------------------
+  auth-api:
+    container_name: devopscorp-auth-api
+    build:
+      context: ./auth-api
+      dockerfile: Dockerfile
+    ports:
+      - "8080:80"
+    environment:
+      - DB_HOST=mysql
+      - DB_PORT=3306
+      - DB_NAME=${MYSQL_DATABASE}
+      - DB_USER=${MYSQL_USER}
+      - DB_PASSWORD=${MYSQL_PASSWORD}
+      - JWT_SECRET=${JWT_SECRET}
+      - JWT_EXPIRATION=${JWT_EXPIRATION}
+    volumes:
+      - ./auth-api:/var/www/html
+    networks:
+      - devopscorp-network
+    depends_on:
+      mysql:
+        condition: service_healthy
+    restart: unless-stopped
+
+  # -----------------------------------
+  # PRODUCT API - Node.js/Python Service
+  # -----------------------------------
+  product-api:
+    container_name: devopscorp-product-api
+    build:
+      context: ./product-api
+      dockerfile: Dockerfile
+    ports:
+      - "5000:5000"
+    environment:
+      - DB_HOST=postgres
+      - DB_PORT=5432
+      - DB_NAME=${POSTGRES_DB}
+      - DB_USER=${POSTGRES_USER}
+      - DB_PASSWORD=${POSTGRES_PASSWORD}
+      - JWT_SECRET=${JWT_SECRET}
+    volumes:
+      - ./product-api:/app
+      - /app/node_modules
+    networks:
+      - devopscorp-network
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: unless-stopped
+
+  # -----------------------------------
+  # MYSQL - Base de données Auth API
+  # -----------------------------------
+  mysql:
+    container_name: devopscorp-mysql
+    image: mysql:8.0
+    ports:
+      - "3306:3306"
+    environment:
+      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
+      - MYSQL_DATABASE=${MYSQL_DATABASE}
+      - MYSQL_USER=${MYSQL_USER}
+      - MYSQL_PASSWORD=${MYSQL_PASSWORD}
+    volumes:
+      - mysql-data:/var/lib/mysql
+      - ./infra/docker/mysql/init.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - devopscorp-network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      timeout: 20s
+      retries: 10
+      interval: 5s
+    restart: unless-stopped
+
+  # -----------------------------------
+  # POSTGRESQL - Base de données Product API
+  # -----------------------------------
+  postgres:
+    container_name: devopscorp-postgres
+    image: postgres:15-alpine
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_DB=${POSTGRES_DB}
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+      - ./infra/docker/postgres/init.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - devopscorp-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER}"]
+      timeout: 20s
+      retries: 10
+      interval: 5s
+    restart: unless-stopped
+
+  # -----------------------------------
+  # PROMETHEUS - Monitoring (Optionnel)
+  # -----------------------------------
+  # prometheus:
+  #   container_name: devopscorp-prometheus
+  #   image: prom/prometheus:latest
+  #   ports:
+  #     - "9090:9090"
+  #   volumes:
+  #     - ./infra/monitoring/prometheus.yml:/etc/prometheus/prometheus.yml
+  #     - prometheus-data:/prometheus
+  #   networks:
+  #     - devopscorp-network
+  #   restart: unless-stopped
+
+  # -----------------------------------
+  # GRAFANA - Dashboards (Optionnel)
+  # -----------------------------------
+  # grafana:
+  #   container_name: devopscorp-grafana
+  #   image: grafana/grafana:latest
+  #   ports:
+  #     - "3001:3000"
+  #   environment:
+  #     - GF_SECURITY_ADMIN_USER=${GRAFANA_ADMIN_USER}
+  #     - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_ADMIN_PASSWORD}
+  #   volumes:
+  #     - grafana-data:/var/lib/grafana
+  #   networks:
+  #     - devopscorp-network
+  #   depends_on:
+  #     - prometheus
+  #   restart: unless-stopped
+
+# -----------------------------------
+# NETWORKS
+# -----------------------------------
+networks:
+  devopscorp-network:
+    driver: bridge
+    name: devopscorp-network
+
+# -----------------------------------
+# VOLUMES
+# -----------------------------------
+volumes:
+  mysql-data:
+    name: devopscorp-mysql-data
+  postgres-data:
+    name: devopscorp-postgres-data
+  # prometheus-data:
+  #   name: devopscorp-prometheus-data
+  # grafana-data:
+  #   name: devopscorp-grafana-data

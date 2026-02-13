@@ -1,0 +1,107 @@
+# Environnement et secrets
+.env
+.env.local
+.env.*.local
+*.key
+*.pem
+secrets/
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Dependencies
+node_modules/
+vendor/
+.pnp
+.pnp.js
+
+# Tests et couverture
+coverage/
+.nyc_output/
+*.lcov
+test-results/
+cypress/videos/
+cypress/screenshots/
+
+# Build
+dist/
+build/
+out/
+*.min.js
+*.min.css
+
+# IDEs et éditeurs
+.vscode/
+!.vscode/extensions.json
+!.vscode/settings.json
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Système d'exploitation
+Thumbs.db
+Desktop.ini
+
+# Docker
+*.tar
+
+# Terraform
+**/.terraform/*
+*.tfstate
+*.tfstate.*
+crash.log
+crash.*.log
+*.tfvars
+*.tfvars.json
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
+.terraformrc
+terraform.rc
+
+# Ansible
+*.retry
+.vault_pass
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+ENV/
+pip-log.txt
+pip-delete-this-directory.txt
+.pytest_cache/
+*.egg-info/
+
+# PHP
+composer.phar
+composer.lock
+
+# Bases de données locales
+*.sqlite
+*.db
+
+# Backup
+*.bak
+*.backup
+*.old
+
+# Certificats SSL locaux
+*.crt
+*.csr
+
+# Temporaires
+tmp/
+temp/
+*.tmp

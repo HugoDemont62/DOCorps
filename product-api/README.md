@@ -3,6 +3,18 @@
 ## Description
 API de gestion des produits développée en Node.js ou Python, avec opérations CRUD sécurisées par JWT.
 
+## Données de démonstration
+
+Pour préremplir SQLite avec des exemples de produits :
+
+```bash
+python seed_products.py
+```
+
+Avec Docker : `docker compose exec product-api python /app/seed_products.py`
+
+Si la base contient déjà des lignes, utiliser `python seed_products.py --force` pour ajouter les démos en plus.
+
 ## Endpoints prévus
 
 ### Produits

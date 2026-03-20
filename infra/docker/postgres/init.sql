@@ -1,0 +1,3 @@
+-- Initialisation PostgreSQL — DevOpsCorp
+-- Schéma métier : l’API produits utilise encore SQLite (products.db) dans le code actuel.
+-- Ce script peut accueillir des migrations futures.

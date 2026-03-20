@@ -1,10 +1,8 @@
-version: '3.8'
-
 # ===================================
 # DEVOPSCORP - Docker Compose
 # ===================================
-# Architecture microservices complète
-# Pour démarrer : docker-compose up -d
+# Pour démarrer : docker compose up --build
+# Variables : copier .env.example vers .env (les valeurs par défaut ci-dessous suffisent en local)
 
 services:
   # -----------------------------------
@@ -18,8 +16,8 @@ services:
     ports:
       - "3000:3000"
     environment:
-      - REACT_APP_API_URL=http://localhost:8080/api
-      - REACT_APP_PRODUCT_API_URL=http://localhost:5000/api
+      - VITE_AUTH_API_URL=http://localhost:8080
+      - VITE_PRODUCT_API_URL=http://localhost:5000
     volumes:
       - ./frontend:/app
       - /app/node_modules
@@ -31,7 +29,7 @@ services:
     restart: unless-stopped
 
   # -----------------------------------
-  # AUTH API - PHP Authentication Service (SQLite)
+  # AUTH API - PHP (SQLite)
   # -----------------------------------
   auth-api:
     container_name: devopscorp-auth-api
@@ -50,15 +48,13 @@ services:
       - BCRYPT_COST=12
       - CORS_ORIGIN=http://localhost:3000
     volumes:
-      # On monte uniquement la base de données pour la persistance
-      # Ne PAS monter tout /var/www/html car ça écrase le vendor installé dans le build
       - ./auth-api/database:/var/www/html/database
     networks:
       - devopscorp-network
     restart: unless-stopped
 
   # -----------------------------------
-  # PRODUCT API - Node.js/Python Service
+  # PRODUCT API - Python / FastAPI
   # -----------------------------------
   product-api:
     container_name: devopscorp-product-api
@@ -70,13 +66,13 @@ services:
     environment:
       - DB_HOST=postgres
       - DB_PORT=5432
-      - DB_NAME=${POSTGRES_DB}
-      - DB_USER=${POSTGRES_USER}
-      - DB_PASSWORD=${POSTGRES_PASSWORD}
-      - JWT_SECRET=${JWT_SECRET}
+      - DB_NAME=${POSTGRES_DB:-devopscorp_products}
+      - DB_USER=${POSTGRES_USER:-postgres}
+      - DB_PASSWORD=${POSTGRES_PASSWORD:-postgres}
+      - JWT_SECRET=${JWT_SECRET:-your-super-secret-jwt-key-change-this}
+      - CORS_ORIGINS=http://localhost:3000,http://127.0.0.1:3000
     volumes:
       - ./product-api:/app
-      - /app/node_modules
     networks:
       - devopscorp-network
     depends_on:
@@ -85,7 +81,7 @@ services:
     restart: unless-stopped
 
   # -----------------------------------
-  # MYSQL - Base de données Auth API
+  # MYSQL (optionnel — Auth utilise SQLite)
   # -----------------------------------
   mysql:
     container_name: devopscorp-mysql
@@ -93,10 +89,10 @@ services:
     ports:
       - "3306:3306"
     environment:
-      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
-      - MYSQL_DATABASE=${MYSQL_DATABASE}
-      - MYSQL_USER=${MYSQL_USER}
-      - MYSQL_PASSWORD=${MYSQL_PASSWORD}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-rootpassword}
+      MYSQL_DATABASE: ${MYSQL_DATABASE:-devopscorp}
+      MYSQL_USER: ${MYSQL_USER:-devopscorp}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-devopscorp_password}
     volumes:
       - mysql-data:/var/lib/mysql
       - ./infra/docker/mysql/init.sql:/docker-entrypoint-initdb.d/init.sql
@@ -110,7 +106,7 @@ services:
     restart: unless-stopped
 
   # -----------------------------------
-  # POSTGRESQL - Base de données Product API
+  # POSTGRESQL
   # -----------------------------------
   postgres:
     container_name: devopscorp-postgres
@@ -118,72 +114,32 @@ services:
     ports:
       - "5432:5432"
     environment:
-      - POSTGRES_DB=${POSTGRES_DB}
-      - POSTGRES_USER=${POSTGRES_USER}
-      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB:-devopscorp_products}
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
     volumes:
       - postgres-data:/var/lib/postgresql/data
       - ./infra/docker/postgres/init.sql:/docker-entrypoint-initdb.d/init.sql
     networks:
       - devopscorp-network
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER}"]
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres} -d ${POSTGRES_DB:-devopscorp_products}"]
       timeout: 20s
       retries: 10
       interval: 5s
     restart: unless-stopped
 
   # -----------------------------------
-  # PROMETHEUS - Monitoring (Optionnel)
+  # PROMETHEUS / GRAFANA (optionnel) — voir commentaires dans l’historique du fichier
   # -----------------------------------
-  # prometheus:
-  #   container_name: devopscorp-prometheus
-  #   image: prom/prometheus:latest
-  #   ports:
-  #     - "9090:9090"
-  #   volumes:
-  #     - ./infra/monitoring/prometheus.yml:/etc/prometheus/prometheus.yml
-  #     - prometheus-data:/prometheus
-  #   networks:
-  #     - devopscorp-network
-  #   restart: unless-stopped
 
-  # -----------------------------------
-  # GRAFANA - Dashboards (Optionnel)
-  # -----------------------------------
-  # grafana:
-  #   container_name: devopscorp-grafana
-  #   image: grafana/grafana:latest
-  #   ports:
-  #     - "3001:3000"
-  #   environment:
-  #     - GF_SECURITY_ADMIN_USER=${GRAFANA_ADMIN_USER}
-  #     - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_ADMIN_PASSWORD}
-  #   volumes:
-  #     - grafana-data:/var/lib/grafana
-  #   networks:
-  #     - devopscorp-network
-  #   depends_on:
-  #     - prometheus
-  #   restart: unless-stopped
-
-# -----------------------------------
-# NETWORKS
-# -----------------------------------
 networks:
   devopscorp-network:
     driver: bridge
     name: devopscorp-network
 
-# -----------------------------------
-# VOLUMES
-# -----------------------------------
 volumes:
   mysql-data:
     name: devopscorp-mysql-data
   postgres-data:
     name: devopscorp-postgres-data
-  # prometheus-data:
-  #   name: devopscorp-prometheus-data
-  # grafana-data:
-  #   name: devopscorp-grafana-data

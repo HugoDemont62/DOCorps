@@ -16,7 +16,7 @@ jobs:
       - name: Créer le fichier .env pour les tests
         run: |
           cat <<EOF > .env
-          JWT_SECRET=integration-test-secret
+          JWT_SECRET=integration-test-secret-long-enough-for-hmac-sha256
           POSTGRES_DB=devopscorp
           POSTGRES_USER=devopscorp
           POSTGRES_PASSWORD=testpassword

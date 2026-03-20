@@ -51,8 +51,16 @@ def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(securit
         # jwt.decode() vérifie la signature ET décode le contenu (payload)
         # Si la signature ne correspond pas à JWT_SECRET -> exception
         # Si le token est expiré -> exception
-        payload = jwt.decode(token, JWT_SECRET, algorithms=[JWT_ALGORITHM])
-        return payload
+        raw = jwt.decode(token, JWT_SECRET, algorithms=[JWT_ALGORITHM])
+        # L'API Auth PHP enveloppe les claims sous « data » (Firebase JWT)
+        if isinstance(raw.get("data"), dict):
+            claims = dict(raw["data"])
+        else:
+            claims = dict(raw)
+        # Aligner id / user_id pour cohérence avec les tests ou autres clients
+        if "id" in claims and "user_id" not in claims:
+            claims["user_id"] = claims["id"]
+        return claims
 
     except jwt.ExpiredSignatureError:
         # Le token était valide mais a expiré

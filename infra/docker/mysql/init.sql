@@ -1,0 +1,2 @@
+-- Initialisation optionnelle MySQL — DevOpsCorp
+-- L’API Auth utilise SQLite ; ce conteneur sert de base pour des évolutions ou autres services.

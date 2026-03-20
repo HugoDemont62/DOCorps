@@ -10,7 +10,10 @@ Pour lancer : uvicorn app:app --reload
               fichier    variable FastAPI dans ce fichier
 """
 
+import os
+
 from fastapi import FastAPI, Depends, HTTPException, status
+from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from typing import Optional
 
@@ -47,6 +50,19 @@ app = FastAPI(
     title="Product API",
     description="API CRUD de gestion des produits — DOCorps",
     version="1.0.0"
+)
+
+# CORS : appels depuis le frontend React (navigateur)
+_cors_origins = os.environ.get(
+    "CORS_ORIGINS",
+    "http://localhost:3000,http://127.0.0.1:3000",
+).split(",")
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=[o.strip() for o in _cors_origins if o.strip()],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
 

@@ -9,7 +9,7 @@ class JWTTest extends TestCase
 {
     protected function setUp(): void
     {
-        $_ENV['JWT_SECRET'] = 'test-secret-key';
+        $_ENV['JWT_SECRET'] = 'test-secret-key-long-enough-for-hmac-sha256-requirement';
         $_ENV['JWT_ALGORITHM'] = 'HS256';
         $_ENV['JWT_EXPIRATION'] = '3600';
     }

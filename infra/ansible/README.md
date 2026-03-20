@@ -1,91 +1,59 @@
-# Ansible - Configuration Management
+# Ansible — Configuration Management
 
-## Description
-Playbooks Ansible pour la configuration et le déploiement automatisé de l'application.
+## Ce qui est en place
 
-## Objectifs
-- Configuration des serveurs
-- Installation des dépendances
-- Déploiement de l'application
-- Configuration des services (nginx, bases de données...)
-- Gestion des utilisateurs et permissions
-
-## Structure prévue
+### Fichiers
 
 ```
 ansible/
-├── inventory/
-│   ├── dev
-│   ├── test
-│   └── prod
-├── playbooks/
-│   ├── setup-servers.yml
-│   ├── deploy-app.yml
-│   ├── configure-db.yml
-│   └── monitoring.yml
-├── roles/
-│   ├── common/
-│   ├── docker/
-│   ├── nginx/
-│   └── monitoring/
-├── group_vars/
-│   ├── all.yml
-│   ├── webservers.yml
-│   └── databases.yml
-└── ansible.cfg
+├── inventory.ini          # Serveurs cibles (à remplir avec votre IP)
+├── playbook.yml           # Playbook principal de déploiement
+├── vars/
+│   └── app.yml            # Variables de l'application
+└── templates/
+    └── env.j2             # Template Jinja2 pour générer le .env
 ```
 
-## Playbooks prévus
+### Ce que fait le playbook
 
-### setup-servers.yml
-- Installation des paquets système
-- Configuration SSH
-- Installation Docker
-- Sécurisation serveur (firewall, fail2ban...)
-
-### deploy-app.yml
-- Pull des images Docker
-- Déploiement des conteneurs
-- Configuration nginx reverse proxy
-- Certificats SSL
-
-### configure-db.yml
-- Installation et configuration bases de données
-- Création des utilisateurs
-- Import des schémas
-
-### monitoring.yml
-- Installation Prometheus
-- Installation Grafana
-- Configuration des exporters
+| Étape | Tag | Action |
+|-------|-----|--------|
+| Prérequis système | `setup` | apt update, git, curl, ca-certificates |
+| Installation Docker | `docker` | Docker Engine + Compose Plugin |
+| Récupération du code | `deploy` | git clone / pull depuis GitHub |
+| Configuration | `config` | génération du `.env` via template Jinja2 |
+| Déploiement | `deploy` | `docker compose up -d --build` |
+| Vérification | `verify` | `docker compose ps` |
 
 ## Utilisation
 
 ```bash
-# Vérifier la connectivité
-ansible all -i inventory/prod -m ping
+# Prérequis : Ansible installé localement
+pip install ansible
 
-# Exécuter un playbook
-ansible-playbook -i inventory/prod playbooks/setup-servers.yml
+# 1. Remplir l'inventaire
+nano inventory.ini
+# → remplacer YOUR_SERVER_IP par l'IP de votre serveur
 
-# Dry-run
-ansible-playbook -i inventory/prod playbooks/deploy-app.yml --check
+# 2. Remplir les variables (et changer les secrets !)
+nano vars/app.yml
 
-# Avec variables supplémentaires
-ansible-playbook -i inventory/prod playbooks/deploy-app.yml -e "version=1.2.0"
+# 3. Tester la connectivité
+ansible all -i inventory.ini -m ping
+
+# 4. Déploiement complet
+ansible-playbook -i inventory.ini playbook.yml
+
+# 5. Redéploiement seul (sans re-setup Docker)
+ansible-playbook -i inventory.ini playbook.yml --tags deploy
 ```
 
-## Bonnes pratiques
-- Utiliser des rôles réutilisables
-- Vault pour les secrets : `ansible-vault encrypt`
-- Tags pour exécution sélective
-- Handlers pour les services
-- Tests avec Molecule
+## Sécuriser les secrets avec Vault
 
-## À développer
-- [ ] Inventaires par environnement
-- [ ] Playbook de setup serveurs
-- [ ] Playbook de déploiement
-- [ ] Rôles réutilisables
-- [ ] Ansible Vault pour les secrets
-- [ ] Tests et validation
+```bash
+# Chiffrer le fichier de variables
+ansible-vault encrypt vars/app.yml
+
+# Lancer le playbook avec le vault
+ansible-playbook -i inventory.ini playbook.yml --ask-vault-pass
+```

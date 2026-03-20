@@ -1,0 +1,56 @@
+name: Integration Tests
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  integration:
+    name: Tests d'intégration (Docker Compose)
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Créer le fichier .env pour les tests
+        run: |
+          cat <<EOF > .env
+          JWT_SECRET=integration-test-secret
+          POSTGRES_DB=devopscorp
+          POSTGRES_USER=devopscorp
+          POSTGRES_PASSWORD=testpassword
+          MYSQL_ROOT_PASSWORD=testroot
+          MYSQL_DATABASE=devopscorp
+          MYSQL_USER=devopscorp
+          MYSQL_PASSWORD=testpassword
+          EOF
+
+      - name: Démarrage des services (sans monitoring)
+        run: |
+          docker compose up -d auth-api product-api postgres
+          echo "Attente que les services soient prêts..."
+          sleep 30
+
+      - name: Vérification des services
+        run: docker compose ps
+
+      - name: Setup Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Installation des dépendances de test
+        working-directory: tests
+        run: pip install -r requirements.txt
+
+      - name: Exécution des tests d'intégration
+        working-directory: tests
+        env:
+          AUTH_API_URL: http://localhost:8080
+          PRODUCT_API_URL: http://localhost:5000
+        run: pytest test_integration.py -v --tb=short
+
+      - name: Logs des services en cas d'échec
+        if: failure()
+        run: docker compose logs

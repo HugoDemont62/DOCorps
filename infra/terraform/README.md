@@ -1,74 +1,64 @@
-# Terraform - Infrastructure as Code
+# Terraform — Infrastructure as Code
 
-## Description
-Scripts Terraform pour le provisioning de l'infrastructure en production.
+## Ce qui est en place
 
-## Objectifs
-- Provisionner des machines virtuelles
-- Configurer les réseaux et groupes de sécurité
-- Créer les bases de données managées
-- Gérer le stockage
-- Configuration reproductible et versionnée
+Provider **Docker** (`kreuzwerker/docker ~> 3.0`) — provisioning local des conteneurs.
 
-## Providers prévus
-- **AWS** (Free Tier) ou
-- **Azure** (compte étudiant) ou
-- **Google Cloud Platform** (crédits gratuits) ou
-- **OVH**, **Scaleway**, **DigitalOcean**
+### Ressources déclarées
 
-## Structure prévue
+| Ressource | Type | Description |
+|-----------|------|-------------|
+| `docker_network.devopscorp` | Réseau | Bridge interne entre services |
+| `docker_volume.postgres_data` | Volume | Persistance PostgreSQL |
+| `docker_container.postgres` | Conteneur | PostgreSQL 15 avec healthcheck |
+| `docker_container.product_api` | Conteneur | API Produits (FastAPI) |
+| `docker_container.auth_api` | Conteneur | API Auth (PHP) |
+| `docker_container.frontend` | Conteneur | Frontend React (Nginx) |
+
+### Fichiers
 
 ```
 terraform/
-├── main.tf           # Configuration principale
-├── variables.tf      # Variables d'entrée
-├── outputs.tf        # Outputs (IPs, URLs...)
-├── providers.tf      # Configuration des providers
-├── modules/          # Modules réutilisables
-│   ├── network/
-│   ├── compute/
-│   └── database/
-└── environments/     # Configurations par environnement
-    ├── dev/
-    ├── test/
-    └── prod/
+├── main.tf                    # Ressources Docker
+├── variables.tf               # Paramètres configurables
+├── outputs.tf                 # URLs affichées après apply
+└── terraform.tfvars.example   # Template de configuration
 ```
-
-## Ressources à créer
-- Instances de calcul (VM ou conteneurs)
-- Load Balancer
-- Bases de données
-- Stockage objet
-- Réseaux virtuels et sous-réseaux
-- Règles de firewall/sécurité
 
 ## Utilisation
 
 ```bash
-# Initialiser Terraform
+# 1. Copier et remplir les variables
+cp terraform.tfvars.example terraform.tfvars
+# Éditer terraform.tfvars avec vos vraies valeurs
+
+# 2. Initialiser le provider
 terraform init
 
-# Planifier les changements
+# 3. Vérifier le plan
 terraform plan
 
-# Appliquer la configuration
+# 4. Appliquer
 terraform apply
 
-# Détruire l'infrastructure
+# 5. Détruire
 terraform destroy
 ```
 
-## Bonnes pratiques
-- Utiliser des variables pour les valeurs sensibles
-- State file stocké en remote (S3, Azure Blob...)
-- Modules réutilisables
-- Documentation des ressources
-- Tagging cohérent des ressources
+Après `apply`, les URLs sont affichées automatiquement :
+```
+frontend_url    = "http://localhost:3000"
+auth_api_url    = "http://localhost:8080"
+product_api_url = "http://localhost:5000"
+```
 
-## À développer
-- [ ] Choix du cloud provider
-- [ ] Configuration du backend (state remote)
-- [ ] Scripts de provisioning
-- [ ] Modules réutilisables
-- [ ] Variables et secrets
-- [ ] Documentation d'utilisation
+## Variables principales
+
+| Variable | Défaut | Description |
+|----------|--------|-------------|
+| `server_host` | `localhost` | IP/hostname du serveur |
+| `jwt_secret` | *(à changer)* | Clé secrète JWT |
+| `postgres_password` | *(à changer)* | Mot de passe PostgreSQL |
+| `frontend_port` | `3000` | Port du frontend |
+
+> `terraform.tfvars` est dans `.gitignore` — ne jamais committer les secrets.

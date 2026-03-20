@@ -1,5 +1,9 @@
 # DevOpsCorp - Projet Fil Rouge DevOps
 
+[![CI](https://github.com/HugoDemont62/DOCorps/actions/workflows/ci.yml/badge.svg)](https://github.com/HugoDemont62/DOCorps/actions/workflows/ci.yml)
+[![Docker Build](https://github.com/HugoDemont62/DOCorps/actions/workflows/docker.yml/badge.svg)](https://github.com/HugoDemont62/DOCorps/actions/workflows/docker.yml)
+[![Integration Tests](https://github.com/HugoDemont62/DOCorps/actions/workflows/integration.yml/badge.svg)](https://github.com/HugoDemont62/DOCorps/actions/workflows/integration.yml)
+
 ## 📋 Présentation
 
 Bienvenue sur le projet DevOpsCorp ! Ce repository contient une application web moderne basée sur une architecture microservices, développée dans le cadre d'un projet DevOps complet.

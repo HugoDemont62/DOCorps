@@ -1,0 +1,21 @@
+# ===================================
+# vars/app.yml — Variables de l'application
+# ===================================
+# NE COMMITEZ JAMAIS les vraies valeurs de secrets.
+# Utilisez ansible-vault pour chiffrer ce fichier en production :
+#   ansible-vault encrypt vars/app.yml
+
+app_dir: /opt/devopscorp
+app_repo: https://github.com/HugoDemont62/DOCorps.git
+app_branch: main
+
+# Ports
+frontend_port: 3000
+auth_api_port: 8080
+product_api_port: 5000
+
+# Secrets — À remplacer par vos vraies valeurs (ou vault)
+jwt_secret: "change-me-in-production"
+postgres_db: "devopscorp"
+postgres_user: "devopscorp"
+postgres_password: "change-me-in-production"

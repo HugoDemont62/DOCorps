@@ -130,8 +130,43 @@ services:
     restart: unless-stopped
 
   # -----------------------------------
-  # PROMETHEUS / GRAFANA (optionnel) — voir commentaires dans l’historique du fichier
+  # PROMETHEUS - Monitoring
   # -----------------------------------
+  prometheus:
+    container_name: devopscorp-prometheus
+    image: prom/prometheus:latest
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./infra/monitoring/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus-data:/prometheus
+    command:
+      - --config.file=/etc/prometheus/prometheus.yml
+      - --storage.tsdb.path=/prometheus
+    networks:
+      - devopscorp-network
+    restart: unless-stopped
+
+  # -----------------------------------
+  # GRAFANA - Dashboards
+  # -----------------------------------
+  grafana:
+    container_name: devopscorp-grafana
+    image: grafana/grafana:latest
+    ports:
+      - "3001:3000"
+    environment:
+      - GF_SECURITY_ADMIN_USER=${GRAFANA_ADMIN_USER:-admin}
+      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_ADMIN_PASSWORD:-admin}
+      - GF_USERS_ALLOW_SIGN_UP=false
+    volumes:
+      - grafana-data:/var/lib/grafana
+      - ./infra/monitoring/grafana/provisioning:/etc/grafana/provisioning:ro
+    networks:
+      - devopscorp-network
+    depends_on:
+      - prometheus
+    restart: unless-stopped
 
 networks:
   devopscorp-network:
@@ -143,3 +178,7 @@ volumes:
     name: devopscorp-mysql-data
   postgres-data:
     name: devopscorp-postgres-data
+  prometheus-data:
+    name: devopscorp-prometheus-data
+  grafana-data:
+    name: devopscorp-grafana-data

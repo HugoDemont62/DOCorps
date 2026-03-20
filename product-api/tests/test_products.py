@@ -59,9 +59,11 @@ def clean_db():
     autouse=True : s'applique automatiquement à tous les tests.
     yield : sépare le "avant" du "après".
 
-    Ça garantit que chaque test part d'une base propre.
+    Ça garantit que chaque test part d'une base propre avec la table créée.
     """
-    # AVANT le test : rien de spécial
+    # AVANT le test : (re)créer la table — nécessaire car on supprime le fichier après chaque test
+    from database import init_db
+    init_db()
     yield
     # APRÈS le test : supprimer le fichier de BDD
     if os.path.exists(DATABASE_PATH):

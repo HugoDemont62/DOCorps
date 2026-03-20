@@ -1,0 +1,125 @@
+---
+# ===================================
+# playbook.yml — Déploiement DevOpsCorp
+# ===================================
+# Prérequis : Ubuntu 22.04 LTS sur le serveur cible.
+#
+# Usage :
+#   ansible-playbook -i inventory.ini playbook.yml
+#   ansible-playbook -i inventory.ini playbook.yml --tags deploy   (redéploiement seul)
+
+- name: Déploiement complet de DevOpsCorp
+  hosts: devopscorp_servers
+  become: true
+  vars_files:
+    - vars/app.yml
+
+  tasks:
+
+    # ─── 1. Prérequis système ─────────────────────────────────────────────────
+    - name: Mise à jour apt et installation des dépendances système
+      tags: [setup]
+      ansible.builtin.apt:
+        name:
+          - git
+          - curl
+          - ca-certificates
+          - gnupg
+          - python3-pip
+        state: present
+        update_cache: true
+
+    # ─── 2. Installation de Docker ────────────────────────────────────────────
+    - name: Ajout de la clé GPG Docker
+      tags: [docker, setup]
+      ansible.builtin.apt_key:
+        url: https://download.docker.com/linux/ubuntu/gpg
+        state: present
+
+    - name: Ajout du dépôt Docker
+      tags: [docker, setup]
+      ansible.builtin.apt_repository:
+        repo: "deb [arch=amd64] https://download.docker.com/linux/ubuntu {{ ansible_distribution_release }} stable"
+        state: present
+
+    - name: Installation de Docker Engine et Docker Compose
+      tags: [docker, setup]
+      ansible.builtin.apt:
+        name:
+          - docker-ce
+          - docker-ce-cli
+          - containerd.io
+          - docker-compose-plugin
+        state: present
+        update_cache: true
+
+    - name: Ajout de l'utilisateur courant au groupe docker
+      tags: [docker, setup]
+      ansible.builtin.user:
+        name: "{{ ansible_user }}"
+        groups: docker
+        append: true
+
+    - name: Démarrage et activation du service Docker
+      tags: [docker, setup]
+      ansible.builtin.systemd:
+        name: docker
+        state: started
+        enabled: true
+
+    # ─── 3. Récupération du code source ──────────────────────────────────────
+    - name: Création du répertoire de déploiement
+      tags: [deploy]
+      ansible.builtin.file:
+        path: "{{ app_dir }}"
+        state: directory
+        owner: "{{ ansible_user }}"
+        group: "{{ ansible_user }}"
+        mode: "0755"
+
+    - name: Clone / mise à jour du dépôt Git
+      tags: [deploy]
+      ansible.builtin.git:
+        repo: "{{ app_repo }}"
+        dest: "{{ app_dir }}"
+        version: "{{ app_branch }}"
+        force: true
+
+    # ─── 4. Configuration des variables d'environnement ──────────────────────
+    - name: Génération du fichier .env
+      tags: [deploy, config]
+      ansible.builtin.template:
+        src: templates/env.j2
+        dest: "{{ app_dir }}/.env"
+        owner: "{{ ansible_user }}"
+        group: "{{ ansible_user }}"
+        mode: "0600"
+
+    # ─── 5. Déploiement avec Docker Compose ──────────────────────────────────
+    - name: Pull des images Docker
+      tags: [deploy]
+      ansible.builtin.command:
+        cmd: docker compose pull
+        chdir: "{{ app_dir }}"
+      changed_when: true
+
+    - name: Build et démarrage des services
+      tags: [deploy]
+      ansible.builtin.command:
+        cmd: docker compose up -d --build --remove-orphans
+        chdir: "{{ app_dir }}"
+      changed_when: true
+
+    # ─── 6. Vérification ─────────────────────────────────────────────────────
+    - name: Vérification que les conteneurs sont actifs
+      tags: [verify]
+      ansible.builtin.command:
+        cmd: docker compose ps
+        chdir: "{{ app_dir }}"
+      register: compose_status
+      changed_when: false
+
+    - name: Affichage du statut des conteneurs
+      tags: [verify]
+      ansible.builtin.debug:
+        var: compose_status.stdout_lines

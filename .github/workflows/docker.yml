@@ -22,10 +22,19 @@ jobs:
         service:
           - name: product-api
             context: ./product-api
+            dockerfile: Dockerfile
           - name: auth-api
             context: ./auth-api
+            dockerfile: Dockerfile
           - name: frontend
             context: ./frontend
+            dockerfile: Dockerfile
+          - name: prometheus
+            context: ./infra/monitoring
+            dockerfile: Dockerfile.prometheus
+          - name: grafana
+            context: ./infra/monitoring
+            dockerfile: Dockerfile.grafana
 
     steps:
       - uses: actions/checkout@v4
@@ -54,6 +63,7 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           context: ${{ matrix.service.context }}
+          file: ${{ matrix.service.context }}/${{ matrix.service.dockerfile }}
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}

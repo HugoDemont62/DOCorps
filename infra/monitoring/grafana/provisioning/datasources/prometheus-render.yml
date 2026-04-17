@@ -1,0 +1,11 @@
+apiVersion: 1
+
+datasources:
+  - name: Prometheus
+    uid: prometheus
+    type: prometheus
+    access: proxy
+    # PROMETHEUS_URL est injecté par Terraform via les env vars du service Grafana sur Render.
+    url: ${PROMETHEUS_URL}
+    isDefault: true
+    editable: false

@@ -1,0 +1,22 @@
+# ===================================
+# terraform.tfvars.example
+# ===================================
+# 1. Copiez ce fichier : cp terraform.tfvars.example terraform.tfvars
+# 2. Remplissez les valeurs ci-dessous
+# 3. Ne commitez JAMAIS terraform.tfvars (il est dans .gitignore)
+
+# Render — Account Settings → API Keys
+render_api_key = "rnd_XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+
+# Render — Account Settings → Profile (format : usr-XXXXXXXXXXXXXXXXXXXX)
+render_owner_id = "usr-XXXXXXXXXXXXXXXXXXXX"
+
+# JWT secret partagé entre auth-api et product-api
+jwt_secret = "votre-secret-jwt-tres-long-et-aleatoire"
+
+# Mot de passe admin Grafana
+grafana_admin_password = "votre-mot-de-passe-grafana"
+
+# Optionnel — valeurs par défaut dans variables.tf
+# service_prefix = "docorps"
+# render_region  = "frankfurt"

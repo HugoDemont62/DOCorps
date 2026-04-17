@@ -1,0 +1,11 @@
+FROM grafana/grafana:10.4.2
+
+# Provisioning Render : datasource Prometheus via URL publique (env var PROMETHEUS_URL)
+COPY grafana/provisioning/datasources/prometheus-render.yml \
+     /etc/grafana/provisioning/datasources/prometheus.yml
+
+COPY grafana/provisioning/dashboards/ \
+     /etc/grafana/provisioning/dashboards/
+
+# Render impose le port 10000 pour les web services.
+ENV GF_SERVER_HTTP_PORT=10000

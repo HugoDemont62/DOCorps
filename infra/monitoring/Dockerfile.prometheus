@@ -1,0 +1,14 @@
+FROM prom/prometheus:v2.51.2
+
+COPY prometheus-render.yml /etc/prometheus/prometheus.yml
+
+# Render impose le port 10000 pour les web services.
+# On override le CMD pour écouter sur 10000 au lieu du 9090 par défaut.
+ENTRYPOINT ["/bin/prometheus"]
+CMD [ \
+  "--config.file=/etc/prometheus/prometheus.yml", \
+  "--storage.tsdb.path=/prometheus", \
+  "--web.listen-address=:10000", \
+  "--web.console.libraries=/usr/share/prometheus/console_libraries", \
+  "--web.console.templates=/usr/share/prometheus/consoles" \
+]

@@ -1,0 +1,36 @@
+# prometheus-render.yml — Configuration Prometheus pour Render
+# Les cibles sont les URLs publiques des services déployés sur Render.
+# Render free tier : pas de stockage persistant, les données sont perdues au redémarrage.
+
+global:
+  scrape_interval: 30s
+  evaluation_interval: 30s
+  scrape_timeout: 20s
+
+scrape_configs:
+
+  # Prometheus se surveille lui-même (port hardcodé 10000 sur Render)
+  - job_name: prometheus
+    static_configs:
+      - targets: ['localhost:10000']
+
+  # Product API — FastAPI /metrics
+  - job_name: product-api
+    scheme: https
+    static_configs:
+      - targets: ['docorps-product-api.onrender.com']
+    metrics_path: /metrics
+
+  # Auth API — PHP /metrics
+  - job_name: auth-api
+    scheme: https
+    static_configs:
+      - targets: ['docorps-auth-api.onrender.com']
+    metrics_path: /metrics
+
+  # Frontend — nginx /metrics
+  - job_name: frontend
+    scheme: https
+    static_configs:
+      - targets: ['docorps-frontend.onrender.com']
+    metrics_path: /metrics

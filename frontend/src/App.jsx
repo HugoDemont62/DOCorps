@@ -1,3 +1,4 @@
+import PropTypes from 'prop-types'
 import { Routes, Route, Navigate } from 'react-router-dom'
 import { useAuth } from './contexts/AuthContext'
 import './App.css'
@@ -22,6 +23,8 @@ function ProtectedRoute({ children }) {
   return children
 }
 
+ProtectedRoute.propTypes = { children: PropTypes.node.isRequired }
+
 function PublicOnly({ children }) {
   const { user, loading } = useAuth()
   if (loading) {
@@ -36,6 +39,8 @@ function PublicOnly({ children }) {
   }
   return children
 }
+
+PublicOnly.propTypes = { children: PropTypes.node.isRequired }
 
 export default function App() {
   return (

@@ -2,6 +2,9 @@
 
 namespace App\Core;
 
+class RouterException extends \RuntimeException {}
+
+
 /**
  * Routeur simple pour gérer les routes de l'API
  */
@@ -90,23 +93,23 @@ class Router
     {
         if (is_callable($handler)) {
             $result = $handler();
-        } else if (is_string($handler) && strpos($handler, '@') !== false) {
+        } elseif (is_string($handler) && strpos($handler, '@') !== false) {
             [$controllerName, $method] = explode('@', $handler);
             $controllerClass = "App\\Controllers\\{$controllerName}";
-            
+
             if (!class_exists($controllerClass)) {
-                throw new \Exception("Controller {$controllerClass} not found");
+                throw new RouterException("Controller {$controllerClass} not found");
             }
-            
+
             $controller = new $controllerClass();
-            
+
             if (!method_exists($controller, $method)) {
-                throw new \Exception("Method {$method} not found in {$controllerClass}");
+                throw new RouterException("Method {$method} not found in {$controllerClass}");
             }
-            
+
             $result = $controller->$method();
         } else {
-            throw new \Exception("Invalid handler");
+            throw new RouterException("Invalid handler");
         }
 
         if (is_array($result) || is_object($result)) {

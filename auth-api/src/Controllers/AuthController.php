@@ -18,55 +18,51 @@ class AuthController
     {
         $data = json_decode(file_get_contents('php://input'), true);
 
-        // Validation des données
-        $errors = $this->validateRegistration($data);
-        if (!empty($errors)) {
-            http_response_code(400);
-            return [
-                'success' => false,
-                'errors' => $errors
-            ];
+        $errorResponse = $this->buildValidationError($data);
+        if ($errorResponse !== null) {
+            return $errorResponse;
         }
 
-        // Vérifier si l'email existe déjà
-        if (User::emailExists($data['email'])) {
-            http_response_code(409);
-            return [
-                'success' => false,
-                'error' => 'Email already exists'
-            ];
-        }
-
-        // Vérifier si le username existe déjà
-        if (User::usernameExists($data['username'])) {
-            http_response_code(409);
-            return [
-                'success' => false,
-                'error' => 'Username already exists'
-            ];
-        }
-
-        // Créer l'utilisateur
-        $user = User::create(
-            $data['username'],
-            $data['email'],
-            $data['password']
-        );
-
+        $user = User::create($data['username'], $data['email'], $data['password']);
         if (!$user) {
             http_response_code(500);
-            return [
-                'success' => false,
-                'error' => 'Failed to create user'
-            ];
+            return ['success' => false, 'error' => 'Failed to create user'];
         }
 
         http_response_code(201);
-        return [
-            'success' => true,
-            'message' => 'User registered successfully',
-            'user' => $user
-        ];
+        return ['success' => true, 'message' => 'User registered successfully', 'user' => $user];
+    }
+
+    /**
+     * Valide les données et vérifie les conflits d'unicité.
+     * Retourne un tableau de réponse d'erreur, ou null si tout est valide.
+     */
+    private function buildValidationError(array $data): ?array
+    {
+        $errors = $this->validateRegistration($data);
+        if (!empty($errors)) {
+            http_response_code(400);
+            return ['success' => false, 'errors' => $errors];
+        }
+
+        $conflictMessage = $this->findConflict($data);
+        if ($conflictMessage !== null) {
+            http_response_code(409);
+            return ['success' => false, 'error' => $conflictMessage];
+        }
+
+        return null;
+    }
+
+    private function findConflict(array $data): ?string
+    {
+        if (User::emailExists($data['email'])) {
+            return 'Email already exists';
+        }
+        if (User::usernameExists($data['username'])) {
+            return 'Username already exists';
+        }
+        return null;
     }
 
     /**

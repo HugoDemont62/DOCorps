@@ -5,6 +5,9 @@ namespace App\Core;
 use PDO;
 use PDOException;
 
+class DatabaseException extends \RuntimeException {}
+
+
 /**
  * Gestionnaire de base de données SQLite
  */
@@ -33,7 +36,7 @@ class Database
             // Créer les tables si elles n'existent pas
             self::createTables();
         } catch (PDOException $e) {
-            throw new \Exception("Database connection failed: " . $e->getMessage());
+            throw new DatabaseException("Database connection failed: " . $e->getMessage());
         }
     }
 

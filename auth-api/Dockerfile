@@ -42,6 +42,10 @@ RUN sed -i 's|/var/www/html|/var/www/html/public|g' /etc/apache2/sites-available
 # Copier la configuration .env
 RUN if [ ! -f .env ]; then cp .env.example .env; fi
 
+# Activer variables_order=EGPCS pour que $_ENV soit peuplé depuis l'environnement
+# (nécessaire sur Render et tout hébergeur qui injecte les vars au niveau process)
+RUN echo 'variables_order = "EGPCS"' > /usr/local/etc/php/conf.d/variables_order.ini
+
 # Exposer le port 80
 EXPOSE 80
 

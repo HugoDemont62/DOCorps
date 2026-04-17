@@ -1,3 +1,4 @@
+import PropTypes from 'prop-types'
 import { useCallback, useEffect, useState } from 'react'
 import { useAuth } from '../contexts/AuthContext'
 import * as productApi from '../services/productApi'
@@ -17,6 +18,50 @@ function formatError(err) {
     return d.detail.map((x) => x.msg || x).join(' ')
   }
   return err.message || 'Erreur réseau ou serveur'
+}
+
+function ProductRow({ p, isAdmin, onEdit, onDelete }) {
+  return (
+    <tr>
+      <td>
+        <strong>{p.name}</strong>
+        {p.description ? (
+          <div className="muted" style={{ fontSize: '0.85rem', marginTop: '0.25rem' }}>
+            {p.description}
+          </div>
+        ) : null}
+      </td>
+      <td>{Number(p.price).toFixed(2)} €</td>
+      <td>{p.stock}</td>
+      <td>{p.category || '—'}</td>
+      {isAdmin ? (
+        <td>
+          <div className="actions">
+            <button type="button" className="btn btn--ghost btn--small" onClick={() => onEdit(p)}>
+              Modifier
+            </button>
+            <button type="button" className="btn btn--danger btn--small" onClick={() => onDelete(p.id)}>
+              Supprimer
+            </button>
+          </div>
+        </td>
+      ) : null}
+    </tr>
+  )
+}
+
+ProductRow.propTypes = {
+  p: PropTypes.shape({
+    id: PropTypes.number.isRequired,
+    name: PropTypes.string.isRequired,
+    description: PropTypes.string,
+    price: PropTypes.number.isRequired,
+    stock: PropTypes.number.isRequired,
+    category: PropTypes.string,
+  }).isRequired,
+  isAdmin: PropTypes.bool.isRequired,
+  onEdit: PropTypes.func.isRequired,
+  onDelete: PropTypes.func.isRequired,
 }
 
 export default function Products() {
@@ -63,42 +108,26 @@ export default function Products() {
     setForm(emptyForm)
   }
 
-  async function handleCreate(e) {
+  async function handleSubmit(e) {
     e.preventDefault()
     if (!isAdmin) return
     setSaving(true)
     setError('')
     try {
-      await productApi.createProduct({
+      const payload = {
         name: form.name.trim(),
         description: form.description.trim() || null,
-        price: parseFloat(form.price),
-        stock: parseInt(form.stock, 10) || 0,
+        price: Number.parseFloat(form.price),
+        stock: Number.parseInt(form.stock, 10) || 0,
         category: form.category.trim() || null,
-      })
-      setForm(emptyForm)
-      await load()
-    } catch (err) {
-      setError(formatError(err))
-    } finally {
-      setSaving(false)
-    }
-  }
-
-  async function handleUpdate(e) {
-    e.preventDefault()
-    if (!isAdmin || editingId == null) return
-    setSaving(true)
-    setError('')
-    try {
-      await productApi.updateProduct(editingId, {
-        name: form.name.trim(),
-        description: form.description.trim() || null,
-        price: parseFloat(form.price),
-        stock: parseInt(form.stock, 10) || 0,
-        category: form.category.trim() || null,
-      })
-      cancelEdit()
+      }
+      if (editingId === null) {
+        await productApi.createProduct(payload)
+        setForm(emptyForm)
+      } else {
+        await productApi.updateProduct(editingId, payload)
+        cancelEdit()
+      }
       await load()
     } catch (err) {
       setError(formatError(err))
@@ -109,7 +138,7 @@ export default function Products() {
 
   async function handleDelete(id) {
     if (!isAdmin) return
-    if (!window.confirm('Supprimer ce produit ?')) return
+    if (!globalThis.confirm('Supprimer ce produit ?')) return
     setError('')
     try {
       await productApi.deleteProduct(id)
@@ -119,6 +148,9 @@ export default function Products() {
       setError(formatError(err))
     }
   }
+
+  const actionLabel = editingId ? 'Enregistrer' : 'Créer'
+  const submitLabel = saving ? 'Enregistrement…' : actionLabel
 
   return (
     <div className="page">
@@ -157,39 +189,13 @@ export default function Products() {
                 </tr>
               ) : (
                 items.map((p) => (
-                  <tr key={p.id}>
-                    <td>
-                      <strong>{p.name}</strong>
-                      {p.description ? (
-                        <div className="muted" style={{ fontSize: '0.85rem', marginTop: '0.25rem' }}>
-                          {p.description}
-                        </div>
-                      ) : null}
-                    </td>
-                    <td>{Number(p.price).toFixed(2)} €</td>
-                    <td>{p.stock}</td>
-                    <td>{p.category || '—'}</td>
-                    {isAdmin ? (
-                      <td>
-                        <div className="actions">
-                          <button
-                            type="button"
-                            className="btn btn--ghost btn--small"
-                            onClick={() => startEdit(p)}
-                          >
-                            Modifier
-                          </button>
-                          <button
-                            type="button"
-                            className="btn btn--danger btn--small"
-                            onClick={() => handleDelete(p.id)}
-                          >
-                            Supprimer
-                          </button>
-                        </div>
-                      </td>
-                    ) : null}
-                  </tr>
+                  <ProductRow
+                    key={p.id}
+                    p={p}
+                    isAdmin={isAdmin}
+                    onEdit={startEdit}
+                    onDelete={handleDelete}
+                  />
                 ))
               )}
             </tbody>
@@ -200,7 +206,8 @@ export default function Products() {
       {isAdmin ? (
         <div className="card product-form">
           <h3>{editingId ? 'Modifier le produit' : 'Nouveau produit'}</h3>
-          <form onSubmit={editingId ? handleUpdate : handleCreate}>
+          <form onSubmit={handleSubmit}>
+
             <div className="form-row">
               <div className="form-group">
                 <label htmlFor="p-name">Nom</label>
@@ -255,7 +262,7 @@ export default function Products() {
             </div>
             <div className="actions">
               <button type="submit" className="btn btn--primary" disabled={saving}>
-                {saving ? 'Enregistrement…' : editingId ? 'Enregistrer' : 'Créer'}
+                {submitLabel}
               </button>
               {editingId ? (
                 <button type="button" className="btn btn--ghost" onClick={cancelEdit}>

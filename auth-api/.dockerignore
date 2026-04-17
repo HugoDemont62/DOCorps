@@ -1,0 +1,6 @@
+.env
+database/*.db
+.git
+tests/
+*.md
+test-api.ps1

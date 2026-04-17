@@ -70,7 +70,7 @@ def main():
             "Rien n'a été ajouté. Utilisez --force pour ajouter quand même.",
             file=sys.stderr,
         )
-        return 0
+        return 1
 
     for p in DEMO_PRODUCTS:
         create_product(

@@ -13,7 +13,7 @@ use Dotenv\Dotenv;
 
 // Charger les variables d'environnement
 $dotenv = Dotenv::createImmutable(__DIR__ . '/..');
-$dotenv->load();
+$dotenv->safeLoad(); // safeLoad = ne plante pas si .env absent (production / Render)
 
 // Configuration des headers CORS
 header('Content-Type: application/json');

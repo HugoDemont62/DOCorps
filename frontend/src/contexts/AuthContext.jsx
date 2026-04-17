@@ -1,3 +1,4 @@
+import PropTypes from 'prop-types'
 import {
   createContext,
   useCallback,
@@ -87,6 +88,8 @@ export function AuthProvider({ children }) {
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
 }
+
+AuthProvider.propTypes = { children: PropTypes.node.isRequired }
 
 export function useAuth() {
   const ctx = useContext(AuthContext)

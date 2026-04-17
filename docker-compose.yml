@@ -168,6 +168,24 @@ services:
       - prometheus
     restart: unless-stopped
 
+  # -----------------------------------
+  # SONARQUBE - Code Quality
+  # -----------------------------------
+  sonarqube:
+    container_name: devopscorp-sonarqube
+    image: sonarqube:community
+    ports:
+      - "9000:9000"
+    environment:
+      - SONAR_ES_BOOTSTRAP_CHECKS_DISABLE=true
+    volumes:
+      - sonarqube-data:/opt/sonarqube/data
+      - sonarqube-logs:/opt/sonarqube/logs
+      - sonarqube-extensions:/opt/sonarqube/extensions
+    networks:
+      - devopscorp-network
+    restart: unless-stopped
+
 networks:
   devopscorp-network:
     driver: bridge
@@ -182,3 +200,9 @@ volumes:
     name: devopscorp-prometheus-data
   grafana-data:
     name: devopscorp-grafana-data
+  sonarqube-data:
+    name: devopscorp-sonarqube-data
+  sonarqube-logs:
+    name: devopscorp-sonarqube-logs
+  sonarqube-extensions:
+    name: devopscorp-sonarqube-extensions

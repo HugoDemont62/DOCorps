@@ -1,0 +1,92 @@
+services:
+  # ─────────────────────────────────────────────
+  # AUTH API — PHP / Apache / SQLite → PostgreSQL
+  # ─────────────────────────────────────────────
+  - type: web
+    name: devopscorp-auth-api
+    runtime: docker
+    dockerfilePath: ./auth-api/Dockerfile
+    dockerContext: ./auth-api
+    plan: free
+    healthCheckPath: /health
+    envVars:
+      - key: APP_ENV
+        value: production
+      - key: APP_DEBUG
+        value: false
+      - key: JWT_SECRET
+        generateValue: true
+      - key: JWT_ALGORITHM
+        value: HS256
+      - key: JWT_EXPIRATION
+        value: 3600
+      - key: BCRYPT_COST
+        value: 12
+      - key: DB_PATH
+        value: /var/www/html/database/auth.db
+      - key: CORS_ORIGIN
+        value: https://devopscorp-frontend.onrender.com
+
+  # ─────────────────────────────────────────────
+  # PRODUCT API — Python / FastAPI
+  # ─────────────────────────────────────────────
+  - type: web
+    name: devopscorp-product-api
+    runtime: docker
+    dockerfilePath: ./product-api/Dockerfile
+    dockerContext: ./product-api
+    plan: free
+    healthCheckPath: /health
+    envVars:
+      - key: DB_HOST
+        fromDatabase:
+          name: devopscorp-postgres
+          property: host
+      - key: DB_PORT
+        fromDatabase:
+          name: devopscorp-postgres
+          property: port
+      - key: DB_NAME
+        fromDatabase:
+          name: devopscorp-postgres
+          property: database
+      - key: DB_USER
+        fromDatabase:
+          name: devopscorp-postgres
+          property: user
+      - key: DB_PASSWORD
+        fromDatabase:
+          name: devopscorp-postgres
+          property: password
+      - key: JWT_SECRET
+        fromService:
+          name: devopscorp-auth-api
+          type: web
+          envVarKey: JWT_SECRET
+      - key: CORS_ORIGINS
+        value: https://devopscorp-frontend.onrender.com
+
+  # ─────────────────────────────────────────────
+  # FRONTEND — React / Vite → Static Site
+  # ─────────────────────────────────────────────
+  - type: web
+    name: devopscorp-frontend
+    runtime: static
+    rootDir: frontend
+    buildCommand: npm ci && npm run build
+    staticPublishPath: dist
+    pullRequestPreviewsEnabled: true
+    envVars:
+      - key: VITE_AUTH_API_URL
+        value: https://devopscorp-auth-api.onrender.com
+      - key: VITE_PRODUCT_API_URL
+        value: https://devopscorp-product-api.onrender.com
+
+databases:
+  # ─────────────────────────────────────────────
+  # POSTGRESQL — Product API
+  # ─────────────────────────────────────────────
+  - name: devopscorp-postgres
+    databaseName: devopscorp_products
+    user: devopscorp
+    plan: free

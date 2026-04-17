@@ -15,10 +15,15 @@ import os
 from fastapi import FastAPI, Depends, HTTPException, status
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
-from typing import Optional
+from typing import Annotated, Optional
 
 from database import init_db, get_all_products, get_product_by_id, create_product, update_product, delete_product
 from auth import get_current_user, require_admin
+
+PRODUCT_NOT_FOUND = "Produit non trouvé"
+
+CurrentUser = Annotated[dict, Depends(get_current_user)]
+AdminUser = Annotated[dict, Depends(require_admin)]
 
 # --- Modèles Pydantic ---
 # Pydantic valide automatiquement les données entrantes.
@@ -89,7 +94,7 @@ def health_check():
 # GET /products — Lister tous les produits
 # Requires: être authentifié (user ou admin)
 @app.get("/products")
-def list_products(user: dict = Depends(get_current_user)):
+def list_products(user: CurrentUser):
     """
     Retourne la liste de tous les produits.
     Le paramètre 'user' est injecté par Depends — on ne l'appelle pas nous-mêmes.
@@ -99,7 +104,7 @@ def list_products(user: dict = Depends(get_current_user)):
 
 # GET /products/{product_id} — Détail d'un produit
 @app.get("/products/{product_id}")
-def read_product(product_id: int, user: dict = Depends(get_current_user)):
+def read_product(product_id: int, user: CurrentUser):
     """
     Retourne un produit par son ID.
     {product_id} dans l'URL devient le paramètre product_id de la fonction.
@@ -110,14 +115,14 @@ def read_product(product_id: int, user: dict = Depends(get_current_user)):
         # 404 = ressource non trouvée, c'est le code HTTP standard
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail="Produit non trouvé"
+            detail=PRODUCT_NOT_FOUND
         )
     return product
 
 
 # POST /products — Créer un produit (admin uniquement)
 @app.post("/products", status_code=status.HTTP_201_CREATED)
-def create_new_product(product: ProductCreate, user: dict = Depends(require_admin)):
+def create_new_product(product: ProductCreate, user: AdminUser):
     """
     Crée un nouveau produit.
 
@@ -136,7 +141,7 @@ def create_new_product(product: ProductCreate, user: dict = Depends(require_admi
 
 # PUT /products/{product_id} — Modifier un produit (admin uniquement)
 @app.put("/products/{product_id}")
-def update_existing_product(product_id: int, product: ProductUpdate, user: dict = Depends(require_admin)):
+def update_existing_product(product_id: int, product: ProductUpdate, user: AdminUser):
     """
     Met à jour un produit existant.
     Combine un paramètre d'URL (product_id) et un body JSON (product).
@@ -152,19 +157,19 @@ def update_existing_product(product_id: int, product: ProductUpdate, user: dict 
     if not updated:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail="Produit non trouvé"
+            detail=PRODUCT_NOT_FOUND
         )
     return updated
 
 
 # DELETE /products/{product_id} — Supprimer un produit (admin uniquement)
 @app.delete("/products/{product_id}")
-def delete_existing_product(product_id: int, user: dict = Depends(require_admin)):
+def delete_existing_product(product_id: int, user: AdminUser):
     """Supprime un produit. Retourne 404 s'il n'existe pas."""
     deleted = delete_product(product_id)
     if not deleted:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail="Produit non trouvé"
+            detail=PRODUCT_NOT_FOUND
         )
     return {"message": "Produit supprimé"}

@@ -18,6 +18,12 @@ FROM node:20-alpine AS builder
 
 WORKDIR /app
 
+# URLs des APIs injectées au build (variables Vite baked dans le JS)
+ARG VITE_AUTH_API_URL=https://docorps-auth-api.onrender.com
+ARG VITE_PRODUCT_API_URL=https://docorps-product-api.onrender.com
+ENV VITE_AUTH_API_URL=$VITE_AUTH_API_URL
+ENV VITE_PRODUCT_API_URL=$VITE_PRODUCT_API_URL
+
 COPY package*.json ./
 RUN npm ci
 

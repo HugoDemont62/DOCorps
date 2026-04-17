@@ -69,3 +69,30 @@ jobs:
           labels: ${{ steps.meta.outputs.labels }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
+
+  # ── Redéploiement automatique sur Render ──────────────────────────────────────
+  deploy-render:
+    name: Redeploy on Render
+    runs-on: ubuntu-latest
+    needs: build-and-push
+    if: github.ref == 'refs/heads/main'
+
+    steps:
+      - name: Trigger Render redeploys
+        env:
+          RENDER_API_KEY: ${{ secrets.RENDER_API_KEY }}
+        run: |
+          services=(
+            "srv-d7h2q337uimc73d3g43g"
+            "srv-d7h2q328qa3s73csr0t0"
+            "srv-d7h2q328qa3s73csr0rg"
+            "srv-d7h2q357vvec73aljif0"
+            "srv-d7h2q358nd3s73ecc2n0"
+          )
+          for id in "${services[@]}"; do
+            echo -n "Redeploying $id → "
+            curl -s -X POST "https://api.render.com/v1/services/$id/deploys" \
+              -H "Authorization: Bearer $RENDER_API_KEY" \
+              -H "Content-Type: application/json" \
+              -d '{}' | python3 -c "import sys,json; d=json.load(sys.stdin); print(d.get('status','?'))"
+          done

@@ -8,9 +8,10 @@ monitoring/
 └── grafana/
     └── provisioning/
         ├── datasources/
-        │   └── prometheus.yml                  # Datasource auto-provisionnée
+        │   └── prometheus.yml                  # Datasource Prometheus (uid: prometheus)
         └── dashboards/
-            └── dashboard.yml                   # Config auto-provisioning dashboards
+            ├── dashboard.yml                   # Provider fichiers JSON
+            └── devopscorp-health.json          # Dashboard « Santé des services »
 ```
 
 ## Accès
@@ -35,21 +36,42 @@ docker compose up -d
 | Job | Target | Endpoint |
 |-----|--------|---------|
 | `prometheus` | localhost:9090 | `/metrics` |
-| `product-api` | product-api:5000 | `/metrics` |
-| `auth-api` | auth-api:80 | `/health` |
-| `frontend` | frontend:3000 | `/health` |
+| `product-api` | product-api:5000 | `/metrics` (instrumentation HTTP FastAPI) |
+| `auth-api` | auth-api:80 | `/metrics` (métrique `auth_api_up`) |
+| `frontend` | frontend:3000 | `/metrics` (Vite : plugin ; prod Nginx : `location /metrics`) |
 
 Vérifier que les targets sont UP : http://localhost:9090/targets
 
-## Grafana — Ajouter un dashboard
+**Frontend DOWN (`connection refused` sur `:3000`)** : le `docker-compose` doit construire le stage **Vite** (`build.target: dev`). Si l’image est uniquement **Nginx** (dernier stage du Dockerfile), le service écoute sur le **port 80** dans le conteneur : il faudrait alors cibler `frontend:80` dans `prometheus.yml` (et adapter le mapping de ports dans Compose).
 
-1. Ouvrir http://localhost:3001
-2. Se connecter (admin / admin)
-3. **Dashboards → Import**
-4. Coller l'ID d'un dashboard communautaire (ex: `1860` pour Node Exporter)
-5. Sélectionner la datasource **Prometheus**
+### Grafana : dashboard en « No data » alors que Prometheus est OK
 
-La datasource Prometheus est automatiquement configurée au démarrage.
+Souvent la **datasource Grafana** ne correspond pas à celle attendue par le dashboard (nom / UID différent d’une ancienne config).
+
+1. **Vérifier Explore** : menu **Explore** → datasource **Prometheus** → requête `up` → tu dois voir des séries. Sinon, corriger l’URL (`http://prometheus:9090` dans la config provisionnée) et le réseau Docker.
+2. **Nom exact** : la datasource provisionnée doit s’appeler **`Prometheus`** (avec cette casse). Le dashboard JSON référence ce nom.
+3. **Réinitialiser la base Grafana** (si tu avais créé Prometheus à la main avant le provisioning) :
+   ```bash
+   docker compose stop grafana
+   docker volume rm devopscorp-grafana-data
+   docker compose up -d grafana
+   ```
+   Les fichiers dans `grafana/provisioning/` recréent alors la datasource avec l’`uid` défini dans `datasources/prometheus.yml`.
+
+## Grafana — Dashboard « DevOpsCorp — Santé des services »
+
+Un dashboard est **provisionné automatiquement** (fichier `dashboards/devopscorp-health.json`) :
+
+1. Ouvrir http://localhost:3001 → **Dashboards**
+2. Ouvrir **DevOpsCorp — Santé des services** (uid `devopscorp-health`)
+
+Il affiche : état `up` par job (frontend, auth-api, product-api, prometheus), métriques `auth_api_up` / `frontend_up`, débit HTTP sur la Product API (`http_requests_total`), et la durée des scrapes.
+
+Après ajout ou modification du JSON : `docker compose restart grafana` (ou recréer le conteneur). Si la datasource ne se lie pas, vérifier que le datasource **Prometheus** a bien l’uid **`prometheus`** (défini dans `datasources/prometheus.yml`).
+
+### Autres dashboards
+
+**Dashboards → Import** : ID communautaire (ex. Node Exporter `1860`) et datasource **Prometheus**.
 
 ## Variables d'environnement
 

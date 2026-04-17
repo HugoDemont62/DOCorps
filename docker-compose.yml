@@ -13,6 +13,9 @@ services:
     build:
       context: ./frontend
       dockerfile: Dockerfile
+      # Sans target, Docker prend le dernier stage (nginx:80) alors que ce service
+      # mappe 3000:3000 et monte le code pour Vite — Prometheus doit scraper le port 3000.
+      target: dev
     ports:
       - "3000:3000"
     environment:

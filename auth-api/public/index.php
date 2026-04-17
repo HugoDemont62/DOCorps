@@ -40,6 +40,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 // Initialiser la base de données
 Database::initialize();
 
+// Créer le compte admin par défaut s'il n'existe pas
+if (!User::emailExists($_ENV['ADMIN_EMAIL'] ?? 'admin@docorps.com')) {
+    User::create(
+        $_ENV['ADMIN_USERNAME'] ?? 'admin',
+        $_ENV['ADMIN_EMAIL']    ?? 'admin@docorps.com',
+        $_ENV['ADMIN_PASSWORD'] ?? 'Admin1234!',
+        'admin'
+    );
+}
+
 // Initialiser le routeur
 $router = new Router();
 

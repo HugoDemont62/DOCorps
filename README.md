@@ -4,13 +4,13 @@
 [![Docker Build](https://github.com/HugoDemont62/DOCorps/actions/workflows/docker.yml/badge.svg)](https://github.com/HugoDemont62/DOCorps/actions/workflows/docker.yml)
 [![Integration Tests](https://github.com/HugoDemont62/DOCorps/actions/workflows/integration.yml/badge.svg)](https://github.com/HugoDemont62/DOCorps/actions/workflows/integration.yml)
 
-## 📋 Présentation
+## Présentation
 
 Bienvenue sur le projet DevOpsCorp ! Ce repository contient une application web moderne basée sur une architecture microservices, développée dans le cadre d'un projet DevOps complet.
 
 L'objectif est de mettre en pratique les bonnes pratiques DevOps : conteneurisation, CI/CD, Infrastructure as Code, tests automatisés, supervision et déploiement continu.
 
-## 🎯 Objectifs du projet
+## Objectifs du projet
 
 - Concevoir une application web découpée en **microservices**
 - Développer un **frontend React** moderne et responsive
@@ -23,7 +23,7 @@ L'objectif est de mettre en pratique les bonnes pratiques DevOps : conteneurisat
 - Gérer l'infrastructure avec **Terraform** et **Ansible**
 - Mettre en place la **supervision** (Prometheus, Grafana)
 
-## 📁 Structure du repository
+## Structure du repository
 
 ```
 DOCorps/
@@ -34,18 +34,20 @@ DOCorps/
 │   ├── docker/          # Dockerfiles et configurations
 │   ├── terraform/       # Scripts de provisioning infrastructure
 │   ├── ansible/         # Playbooks de configuration
+│   ├── monitoring/      # Prometheus, Grafana (voir README.md)
 │   └── kubernetes/      # Manifests K8s (optionnel)
 ├── docs/                 # Documentation technique
 │   ├── architecture/    # Schémas et design
-│   ├── api/            # Documentation des APIs
-│   └── deployment/     # Guides de déploiement
+│   ├── api/             # Documentation des APIs
+│   ├── deployment/      # Guides de déploiement
+│   └── monitoring/      # Captures Prometheus / Grafana (voir screenshots/)
 ├── tests/               # Tests d'intégration globaux
 ├── .github/workflows/   # Pipelines CI/CD GitHub Actions
 └── README.md           # Ce fichier
 
 ```
 
-## 🚀 Technologies utilisées
+## Technologies utilisées
 
 ### Frontend
 - **React** - Framework JavaScript pour l'interface utilisateur
@@ -65,13 +67,25 @@ DOCorps/
 - **SonarQube** - Analyse de qualité de code
 - **Prometheus + Grafana** - Monitoring et supervision
 
+### Supervision (Prometheus et Grafana)
 
+Documentation détaillée : [**`infra/monitoring/README.md`**](infra/monitoring/README.md) (démarrage, targets, dashboard provisionné, dépannage).
 
-## 📝 Licence
+**Prometheus** — page *Status → Targets* (tous les jobs opérationnels) :
+
+![Prometheus — targets](docs/monitoring/screenshots/prometheus-targets.png)
+
+**Grafana** — dashboard *DevOpsCorp — Santé des services* :
+
+![Grafana — dashboard santé](docs/monitoring/screenshots/grafana-dashboard-sante.png)
+
+Ajoutez vos captures dans `docs/monitoring/screenshots/` sous ces noms exacts (voir [`docs/monitoring/README.md`](docs/monitoring/README.md)).
+
+## Licence
 
 Projet pédagogique - ECV Digital - Formation DevOps
 
-## 🤝 Auteurs
+## Auteurs
 
 Équipe DevOpsCorp - Promotion 2025-2026
 

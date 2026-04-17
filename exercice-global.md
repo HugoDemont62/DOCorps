@@ -59,11 +59,11 @@ Vous allez, par itérations, construire et outiller un projet complet, en suivan
 - Mettre en place SonarQube (ou équivalent) pour chaque microservice et le frontend
 - Corriger les problèmes bloquants détectés
 
-+- Dockerfile pour chaque service
+#### 5. **Dockerfile pour chaque service**
 - docker-compose.yml pour l’ensemble (services, réseaux, volumes, dépendances)
 - Déploiement du projet sur un serveur gratuit en ligne (ex : Render, Railway, Vercel, Heroku, etc.) pour valider l’accessibilité du projet
 
-+- Pipeline automatisé (GitHub Actions, GitLab CI, Jenkins…)
+#### 6. **Pipeline automatisé (GitHub Actions, GitLab CI, Jenkins…)**
 - Étapes : build, tests, analyse Sonar, build/push images Docker, déploiement sur environnement de test ou serveur gratuit en ligne
 - Ajout de badges de statut dans le README
 

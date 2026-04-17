@@ -1,0 +1,3 @@
+# HELP frontend_up DevOpsCorp frontend (image nginx production)
+# TYPE frontend_up gauge
+frontend_up 1

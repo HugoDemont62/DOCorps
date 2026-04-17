@@ -15,6 +15,16 @@ use Dotenv\Dotenv;
 $dotenv = Dotenv::createImmutable(__DIR__ . '/..');
 $dotenv->load();
 
+// Prometheus : format texte obligatoire (pas du JSON) — doit être avant le header JSON global
+$path = parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH);
+if ($path === '/metrics') {
+    header('Content-Type: text/plain; version=0.0.4; charset=utf-8');
+    echo "# HELP auth_api_up Auth API availability (1 = up).\n";
+    echo "# TYPE auth_api_up gauge\n";
+    echo "auth_api_up 1\n";
+    exit(0);
+}
+
 // Configuration des headers CORS
 header('Content-Type: application/json');
 header('Access-Control-Allow-Origin: ' . ($_ENV['CORS_ORIGIN'] ?? '*'));

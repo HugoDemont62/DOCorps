@@ -17,6 +17,8 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from typing import Optional
 
+from prometheus_fastapi_instrumentator import Instrumentator
+
 from database import init_db, get_all_products, get_product_by_id, create_product, update_product, delete_product
 from auth import get_current_user, require_admin
 
@@ -64,6 +66,9 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# Métriques HTTP pour Prometheus (/metrics)
+Instrumentator().instrument(app).expose(app)
 
 
 # --- Événement de démarrage ---

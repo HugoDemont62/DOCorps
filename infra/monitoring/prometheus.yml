@@ -22,20 +22,20 @@ scrape_configs:
     static_configs:
       - targets: [localhost:9090]
 
-  # Product API (FastAPI expose /metrics via prometheus-fastapi-instrumentator)
+  # Product API (FastAPI — /metrics via prometheus-fastapi-instrumentator)
   - job_name: product-api
     static_configs:
       - targets: [product-api:5000]
     metrics_path: /metrics
 
-  # Auth API (PHP — health check comme proxy de disponibilité)
+  # Auth API (PHP — /metrics en format exposition Prometheus, pas le JSON de /health)
   - job_name: auth-api
     static_configs:
       - targets: [auth-api:80]
-    metrics_path: /health
+    metrics_path: /metrics
 
-  # Frontend (Nginx — statut basique via stub_status)
+  # Frontend (Vite dev : plugin /metrics ; image nginx prod : location /metrics)
   - job_name: frontend
     static_configs:
       - targets: [frontend:3000]
-    metrics_path: /health
+    metrics_path: /metrics

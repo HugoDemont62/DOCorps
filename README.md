@@ -81,6 +81,12 @@ Documentation détaillée : [**`infra/monitoring/README.md`**](infra/monitoring/
 
 Ajoutez vos captures dans `docs/monitoring/screenshots/` sous ces noms exacts (voir [`docs/monitoring/README.md`](docs/monitoring/README.md)).
 
+## Bilan du projet
+
+Retour d'expérience structuré (choix techniques, difficultés rencontrées, axes d'amélioration) — section 9 de l'énoncé :
+
+- [`docs/BILAN.md`](docs/BILAN.md)
+
 ## Licence
 
 Projet pédagogique - ECV Digital - Formation DevOps

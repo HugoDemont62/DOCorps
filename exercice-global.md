@@ -69,7 +69,7 @@ Vous allez, par itérations, construire et outiller un projet complet, en suivan
 
 #### 7. **Infrastructure as Code**
 - Utilisez Docker pour l’orchestration locale (développement, tests)
-- Utilisez Terraform (et/ou Ansible) pour provisionner l’infrastructure en production : machines virtuelles, réseau, base de données, stockage…
+- Utilisez Terraform (ou Ansible) pour provisionner l’infrastructure en production : machines virtuelles, réseau, base de données, stockage…
 - Les scripts IaC doivent être reproductibles et versionnés
 
 #### 8. **Supervision et logs**

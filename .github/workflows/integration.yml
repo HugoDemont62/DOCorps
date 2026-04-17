@@ -17,6 +17,7 @@ jobs:
         run: |
           cat <<EOF > .env
           JWT_SECRET=integration-test-secret-long-enough-for-hmac-sha256
+          BCRYPT_COST=4
           POSTGRES_DB=devopscorp
           POSTGRES_USER=devopscorp
           POSTGRES_PASSWORD=testpassword

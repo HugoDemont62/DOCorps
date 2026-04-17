@@ -9,6 +9,7 @@ require_once __DIR__ . '/../vendor/autoload.php';
 
 use App\Core\Router;
 use App\Core\Database;
+use App\Models\User;
 use Dotenv\Dotenv;
 
 // Charger les variables d'environnement

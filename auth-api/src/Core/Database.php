@@ -21,6 +21,9 @@ class Database
     public static function initialize(): void
     {
         $dbPath = $_ENV['DB_PATH'] ?? 'database/auth.db';
+        if ($dbPath !== ':memory:' && !str_starts_with($dbPath, '/')) {
+            $dbPath = dirname(dirname(__DIR__)) . '/' . $dbPath;
+        }
         $dbDir = dirname($dbPath);
 
         // Créer le dossier database s'il n'existe pas

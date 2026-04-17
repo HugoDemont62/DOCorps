@@ -61,7 +61,7 @@ jobs:
         env:
           JWT_SECRET: test-secret-key
           DB_PATH: ":memory:"
-        run: vendor/bin/phpunit --colors=always
+        run: vendor/bin/phpunit --colors=always --no-coverage
 
   # ─────────────────────────────────────────
   # 3. Frontend — Node.js / Vitest / ESLint

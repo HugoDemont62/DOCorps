@@ -2,7 +2,8 @@
   "permissions": {
     "allow": [
       "Bash(tree:*)",
-      "Bash(grep -r '$_ENV\\\\|getenv' /c/Users/hugod/CLionProjects/DOCorps/auth-api/public/index.php)"
+      "Bash(grep -r '$_ENV\\\\|getenv' /c/Users/hugod/CLionProjects/DOCorps/auth-api/public/index.php)",
+      "Bash(terraform -v)"
     ]
   }
 }

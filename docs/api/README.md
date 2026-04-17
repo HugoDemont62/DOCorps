@@ -13,7 +13,7 @@
 ## Auth API (PHP)
 
 **Base URL locale :** `http://localhost:8080`  
-**Base URL production :** `https://devopscorp-auth-api.onrender.com`
+**Base URL production :** `https://docorps-auth-api.onrender.com`
 
 ### Endpoints
 
@@ -158,8 +158,9 @@ Authorization: Bearer <token>
 ## Product API (Python / FastAPI)
 
 **Base URL locale :** `http://localhost:5000`  
-**Base URL production :** `https://devopscorp-product-api.onrender.com`  
-**Swagger interactif :** `http://localhost:5000/docs`
+**Base URL production :** `https://docorps-product-api.onrender.com`  
+**Swagger interactif local :** `http://localhost:5000/docs`  
+**Swagger interactif production :** `https://docorps-product-api.onrender.com/docs`
 
 Toutes les routes (sauf `/health`) requièrent un token JWT valide dans le header `Authorization: Bearer`.
 

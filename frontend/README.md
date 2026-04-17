@@ -2,6 +2,13 @@
 
 Interface utilisateur du projet fil rouge : **React + Vite**, navigation par **React Router**, appels HTTP avec **Axios** vers l’API Auth (PHP) et l’API produits (Python/FastAPI).
 
+## URLs
+
+| Environnement | URL |
+|---|---|
+| Local (`npm run dev`) | <http://localhost:3000> |
+| Production (Render) | <https://docorps-frontend.onrender.com/> |
+
 ## Fonctionnalités
 
 | Page | Description |

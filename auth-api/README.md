@@ -3,6 +3,14 @@
 ## Description
 API d'authentification RESTful développée en PHP 8.1+ avec SQLite, responsable de la gestion des utilisateurs et de l'authentification JWT pour le projet DevOpsCorp.
 
+## URLs
+
+| Environnement | URL |
+|---|---|
+| Local (Docker Compose) | <http://localhost:8080> |
+| Production (Render) | <https://docorps-auth-api.onrender.com/> |
+| Health check production | <https://docorps-auth-api.onrender.com/health> |
+
 ## Fonctionnalités
 
 ✅ **Authentification complète**

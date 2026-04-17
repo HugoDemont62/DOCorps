@@ -79,7 +79,7 @@ avec `target: dev`. Le piège est documenté dans `infra/monitoring/README.md` �
 
 ### 3.2 CORS en production ≠ CORS en développement
 
-En local, le frontend sert sur `http://localhost:3000` ; sur Render, sur `https://devopscorp-frontend.onrender.com`. Les valeurs CORS doivent suivre. La solution adoptée : **deux variables distinctes** (`CORS_ORIGIN` côté PHP, `CORS_ORIGINS` côté FastAPI) injectées séparément par Compose et par `render.yaml`. Aucun fallback `*` en production — c'était tentant mais cassait la sécurité du JWT.
+En local, le frontend sert sur `http://localhost:3000` ; sur Render, sur `https://docorps-frontend.onrender.com`. Les valeurs CORS doivent suivre. La solution adoptée : **deux variables distinctes** (`CORS_ORIGIN` côté PHP, `CORS_ORIGINS` côté FastAPI) injectées séparément par Compose et par `render.yaml`. Aucun fallback `*` en production — c'était tentant mais cassait la sécurité du JWT.
 
 ### 3.3 Partage du `JWT_SECRET` entre services
 

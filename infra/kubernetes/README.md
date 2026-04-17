@@ -1,4 +1,6 @@
-# Kubernetes - Orchestration (Optionnel)
+# Kubernetes — Orchestration (Optionnel — non livré)
+
+> **Statut : non implémenté.** L'orchestration en production passe actuellement par **Render** (voir [`infra/terraform/render/`](../terraform/render/)) et **Docker Compose** en local. Ce document conserve la **cible Kubernetes envisagée** comme axe d'évolution (cf. [`docs/BILAN.md`](../../docs/BILAN.md) § 5.5).
 
 ## Description
 Manifests Kubernetes pour l'orchestration avancée de l'application (optionnel si Docker Compose ne suffit pas).

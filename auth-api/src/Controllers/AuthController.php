@@ -23,7 +23,8 @@ class AuthController
             return $errorResponse;
         }
 
-        $user = User::create($data['username'], $data['email'], $data['password']);
+        $role = ($data['role'] ?? 'user') === 'admin' ? 'admin' : 'user';
+        $user = User::create($data['username'], $data['email'], $data['password'], $role);
         if (!$user) {
             http_response_code(500);
             return ['success' => false, 'error' => 'Failed to create user'];

@@ -18,6 +18,7 @@ from pydantic import BaseModel
 from typing import Annotated, Optional
 
 from database import init_db, get_all_products, get_product_by_id, create_product, update_product, delete_product
+from seed_products import DEMO_PRODUCTS
 from auth import get_current_user, require_admin
 
 PRODUCT_NOT_FOUND = "Produit non trouvé"
@@ -77,9 +78,18 @@ app.add_middleware(
 def startup():
     """
     S'exécute UNE SEULE FOIS quand le serveur démarre.
-    On en profite pour créer la table si elle n'existe pas.
+    Crée la table si elle n'existe pas, puis insère les produits démo si la base est vide.
     """
     init_db()
+    if not get_all_products():
+        for p in DEMO_PRODUCTS:
+            create_product(
+                name=p["name"],
+                description=p["description"],
+                price=p["price"],
+                stock=p["stock"],
+                category=p["category"],
+            )
 
 
 # --- Routes ---

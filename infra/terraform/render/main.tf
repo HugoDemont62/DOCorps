@@ -51,7 +51,8 @@ resource "render_web_service" "auth_api" {
 
   runtime_source = {
     image = {
-      image_url = "${local.ghcr_prefix}-auth-api:latest"
+      image_url = "${local.ghcr_prefix}-auth-api"
+      tag       = "latest"
     }
   }
 
@@ -71,7 +72,8 @@ resource "render_web_service" "product_api" {
 
   runtime_source = {
     image = {
-      image_url = "${local.ghcr_prefix}-product-api:latest"
+      image_url = "${local.ghcr_prefix}-product-api"
+      tag       = "latest"
     }
   }
 
@@ -90,7 +92,8 @@ resource "render_web_service" "frontend" {
 
   runtime_source = {
     image = {
-      image_url = "${local.ghcr_prefix}-frontend:latest"
+      image_url = "${local.ghcr_prefix}-frontend"
+      tag       = "latest"
     }
   }
 
@@ -112,11 +115,14 @@ resource "render_web_service" "prometheus" {
 
   runtime_source = {
     image = {
-      image_url = "${local.ghcr_prefix}-prometheus:latest"
+      image_url = "${local.ghcr_prefix}-prometheus"
+      tag       = "latest"
     }
   }
 
-  env_vars = {}
+  env_vars = {
+    SERVICE_NAME = { value = "prometheus" }
+  }
 }
 
 # ── Grafana ───────────────────────────────────────────────────────────────────
@@ -130,15 +136,16 @@ resource "render_web_service" "grafana" {
 
   runtime_source = {
     image = {
-      image_url = "${local.ghcr_prefix}-grafana:latest"
+      image_url = "${local.ghcr_prefix}-grafana"
+      tag       = "latest"
     }
   }
 
   env_vars = {
-    GF_SERVER_HTTP_PORT          = { value = "10000" }
-    GF_SECURITY_ADMIN_PASSWORD   = { value = var.grafana_admin_password }
-    GF_USERS_ALLOW_SIGN_UP       = { value = "false" }
-    GF_AUTH_ANONYMOUS_ENABLED    = { value = "false" }
-    PROMETHEUS_URL               = { value = local.prometheus_url }
+    GF_SERVER_HTTP_PORT        = { value = "10000" }
+    GF_SECURITY_ADMIN_PASSWORD = { value = var.grafana_admin_password }
+    GF_USERS_ALLOW_SIGN_UP     = { value = "false" }
+    GF_AUTH_ANONYMOUS_ENABLED  = { value = "false" }
+    PROMETHEUS_URL             = { value = local.prometheus_url }
   }
 }

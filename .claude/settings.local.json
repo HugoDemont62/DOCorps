@@ -4,7 +4,9 @@
       "Bash(tree:*)",
       "Bash(grep -r '$_ENV\\\\|getenv' /c/Users/hugod/CLionProjects/DOCorps/auth-api/public/index.php)",
       "Bash(terraform -v)",
-      "Bash(curl *)"
+      "Bash(curl *)",
+      "Bash(python3 -c \"import sys,json; d=json.load\\(sys.stdin\\); [print\\(v['key'], '→', v['value'] if v['key']!='JWT_SECRET' else '***'\\) for v in d]\")",
+      "Bash(python3 -c \"import sys,json; d=json.load\\(sys.stdin\\); print\\('Deploy:', d.get\\('status','?'\\)\\)\")"
     ]
   }
 }

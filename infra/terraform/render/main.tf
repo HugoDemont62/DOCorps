@@ -80,6 +80,7 @@ resource "render_web_service" "product_api" {
   env_vars = {
     JWT_SECRET    = { value = var.jwt_secret }
     DATABASE_PATH = { value = ":memory:" }
+    CORS_ORIGINS  = { value = local.frontend_url }
   }
 }
 

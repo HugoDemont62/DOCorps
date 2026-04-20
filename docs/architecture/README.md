@@ -145,4 +145,4 @@ Badges de statut disponibles dans le `README.md` racine.
 Chaque service est décrit dans `render.yaml` et déployé sur [Render](https://render.com) :
 - Build Docker depuis le `Dockerfile` de chaque service.
 - Variables d'environnement injectées (JWT_SECRET généré par Render).
-- CORS configuré avec l'URL exacte du frontend Render (`https://devopscorp-frontend.onrender.com`).
+- CORS configuré avec l'URL exacte du frontend Render (`https://docorps-frontend.onrender.com`).

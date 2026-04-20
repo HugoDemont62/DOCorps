@@ -33,10 +33,12 @@ Avec toute la stack applicative :
 docker compose up -d
 ```
 
-| Service    | URL locale | Identifiants Grafana |
-|-----------|-------------------------|----------------------|
-| Prometheus | http://localhost:9090 | —                    |
-| Grafana    | http://localhost:3001 | `admin` / `admin` (surcharge possible via `.env`) |
+| Service    | URL locale | URL production (Render) | Identifiants Grafana |
+|-----------|-------------------------|------------------------|----------------------|
+| Prometheus | <http://localhost:9090> | <https://docorps-prometheus.onrender.com/> | — |
+| Grafana    | <http://localhost:3001> | <https://docorps-grafana.onrender.com/> | `admin` / valeur de `GRAFANA_ADMIN_PASSWORD` (Render) ou `admin` (local) |
+
+> En production, Prometheus et Grafana sont déployés via [`infra/terraform/render/`](../terraform/render/) avec des images custom (`Dockerfile.prometheus`, `Dockerfile.grafana`) embarquant la configuration. Le scrape utilise alors [`prometheus-render.yml`](prometheus-render.yml) (cibles publiques `docorps-*.onrender.com`) et **non** `prometheus.yml` (réservé au scrape interne Docker).
 
 Variables utiles dans `.env` :
 

@@ -7,8 +7,31 @@ Documentation complète pour le déploiement de l'application DevOpsCorp.
 
 L'application peut être déployée de plusieurs manières :
 1. **Développement local** - Docker Compose
-2. **Environnement de test** - Serveur gratuit en ligne
-3. **Production** - Infrastructure cloud avec Terraform/Ansible
+2. **Production** - Render via Terraform (provider `render-oss/render`)
+3. **Production cloud alternative** - Provisioning Terraform/Ansible (cible non livrée)
+
+## Déploiement actuel — Render
+
+| Service | URL | Source | Image |
+|---|---|---|---|
+| Frontend | <https://docorps-frontend.onrender.com/> | `frontend/Dockerfile` (stage `build` + nginx) | `ghcr.io/hugodemont62/docorps-frontend:latest` |
+| Auth API | <https://docorps-auth-api.onrender.com/> | `auth-api/Dockerfile` | `ghcr.io/hugodemont62/docorps-auth-api:latest` |
+| Product API | <https://docorps-product-api.onrender.com/> | `product-api/Dockerfile` | `ghcr.io/hugodemont62/docorps-product-api:latest` |
+| Prometheus | <https://docorps-prometheus.onrender.com/> | `infra/monitoring/Dockerfile.prometheus` (config embarquée) | `ghcr.io/hugodemont62/docorps-prometheus:latest` |
+| Grafana | <https://docorps-grafana.onrender.com/> | `infra/monitoring/Dockerfile.grafana` (provisioning embarqué) | `ghcr.io/hugodemont62/docorps-grafana:latest` |
+
+Le déploiement réel est piloté par **Terraform** (`infra/terraform/render/`) :
+
+```bash
+cd infra/terraform/render
+cp terraform.tfvars.example terraform.tfvars
+# renseigner render_api_key, render_owner_id, jwt_secret, grafana_admin_password
+terraform init
+terraform apply
+terraform output     # affiche les 5 URLs publiques
+```
+
+Les images Docker doivent avoir été poussées sur GHCR par le workflow `docker.yml` **avant** `terraform apply`.
 
 ---
 
@@ -46,66 +69,16 @@ docker-compose logs -f
 
 ---
 
-## 2. Déploiement sur serveur gratuit (Test)
+## 2. Alternatives de déploiement gratuites
 
-### Options de plateformes gratuites
+| Plateforme | Atouts | Limite plan Free |
+|---|---|---|
+| **Render** *(retenu — voir ci-dessus)* | Blueprint Terraform, PostgreSQL managé, secrets injectables entre services | Sleep après 15 min d'inactivité |
+| Railway.app | Déploiement Git, Docker natif | Crédit limité |
+| Fly.io | Multi-régions, Docker natif | Quota CPU |
+| Vercel + backend séparé | Frontend statique ultra-rapide | Pas adapté aux APIs Docker |
 
-#### Option 1 : Render.com
-- Frontend : Static Site
-- APIs : Web Services
-- Bases de données : PostgreSQL gratuit
-
-#### Option 2 : Railway.app
-- Déploiement via GitHub
-- Support Docker
-- PostgreSQL/MySQL inclus
-
-#### Option 3 : Vercel + Backend séparé
-- Vercel pour le frontend React
-- Render/Railway pour les APIs
-
-#### Option 4 : Fly.io
-- Support Docker natif
-- Déploiement multi-régions
-
-### Étapes générales
-
-1. **Préparer les Dockerfiles optimisés pour la production**
-2. **Configurer les variables d'environnement** sur la plateforme
-3. **Connecter le repository GitHub**
-4. **Configurer les build settings**
-5. **Déployer**
-
-### Exemple avec Render.com
-
-```yaml
-# render.yaml
-services:
-  - type: web
-    name: devopscorp-frontend
-    env: static
-    buildCommand: cd frontend && npm install && npm run build
-    staticPublishPath: frontend/build
-
-  - type: web
-    name: devopscorp-auth-api
-    env: docker
-    dockerfilePath: ./auth-api/Dockerfile
-    envVars:
-      - key: DB_HOST
-        value: <database-url>
-
-  - type: web
-    name: devopscorp-product-api
-    env: docker
-    dockerfilePath: ./product-api/Dockerfile
-
-databases:
-  - name: auth-db
-    plan: free
-  - name: product-db
-    plan: free
-```
+L'historique du projet contient également un fichier [`render.yaml`](../../render.yaml) (Blueprint Render *à la main* sans Terraform) — conservé comme alternative mais non utilisé en production.
 
 ---
 

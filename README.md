@@ -10,6 +10,20 @@ Bienvenue sur le projet DevOpsCorp ! Ce repository contient une application web 
 
 L'objectif est de mettre en pratique les bonnes pratiques DevOps : conteneurisation, CI/CD, Infrastructure as Code, tests automatisés, supervision et déploiement continu.
 
+## Liens de production (Render)
+
+L'ensemble de la stack est déployé sur Render via [`infra/terraform/render/`](infra/terraform/render/) (provider `render-oss/render`).
+
+| Service | URL publique |
+|---|---|
+| Frontend (React) | <https://docorps-frontend.onrender.com/> |
+| Auth API (PHP) | <https://docorps-auth-api.onrender.com/> |
+| Product API (FastAPI) | <https://docorps-product-api.onrender.com/> |
+| Prometheus | <https://docorps-prometheus.onrender.com/> |
+| Grafana | <https://docorps-grafana.onrender.com/> |
+
+> ⚠ Plan **Free** : les services s'endorment après 15 min d'inactivité — premier appel après réveil = ~30 s. Un workflow [`keep-alive.yml`](.github/workflows/keep-alive.yml) ping ces URLs pour limiter l'effet.
+
 ## Objectifs du projet
 
 - Concevoir une application web découpée en **microservices**

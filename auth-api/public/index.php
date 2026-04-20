@@ -39,16 +39,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 }
 
 // Initialiser la base de données
-Database::initialize();
+try {
+    Database::initialize();
 
-// Créer le compte admin par défaut s'il n'existe pas
-if (!User::emailExists($_ENV['ADMIN_EMAIL'] ?? 'admin@docorps.com')) {
-    User::create(
-        $_ENV['ADMIN_USERNAME'] ?? 'admin',
-        $_ENV['ADMIN_EMAIL']    ?? 'admin@docorps.com',
-        $_ENV['ADMIN_PASSWORD'] ?? 'Admin1234!',
-        'admin'
-    );
+    // Créer le compte admin par défaut s'il n'existe pas
+    if (!User::emailExists($_ENV['ADMIN_EMAIL'] ?? 'admin@docorps.com')) {
+        User::create(
+            $_ENV['ADMIN_USERNAME'] ?? 'admin',
+            $_ENV['ADMIN_EMAIL']    ?? 'admin@docorps.com',
+            $_ENV['ADMIN_PASSWORD'] ?? 'Admin1234!',
+            'admin'
+        );
+    }
+} catch (Exception $e) {
+    http_response_code(500);
+    echo json_encode(['success' => false, 'error' => 'Database initialization failed: ' . $e->getMessage()]);
+    exit(1);
 }
 
 // Initialiser le routeur
